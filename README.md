@@ -45,6 +45,44 @@ print(profile.get_header())
 ```
 For a complete example, see RunExample.py.
 
+## Example use case: Split Profiles by feature
+One common use case is to split NC profiles based on profile type or specific geometric characteristics, such as the presence of holes or inclined cuts.
+
+```bash
+from DSTVParser import NCFileParser
+
+input_folder = "your_folder"
+sets_by_type = {}
+
+for file_path in input_folder.glob("*.nc"):
+    try:
+        parser = NCFileParser(str(file_path))
+        profile = parser.parse()
+        profile_type = profile.code_profile
+
+        if profile_type not in sets_by_type:
+            sets_by_type[profile_type] = []
+
+        sets_by_type[profile_type].append(file_path.name)
+
+    except Exception as e:
+        print(f"Failed to process {file_path.name}: {e}")
+
+# Print grouped profiles
+for profile_type, files in sets_by_type.items():
+    print(f"{profile_type}:", len(files))
+```
+
+You can find an example of such usage in:
+```bash
+Examples/isolate_inclined_cuts.py
+```
+This script:
+- Scans a folder containing .nc files
+-Parses each file using the NCFileParser
+-Checks for inclined flange/web cuts
+-Copies the file into either the Inclined cuts or Straights folder, accordingly
+
 ## License
 MIT License — feel free to use, modify, and share with attribution.
 
