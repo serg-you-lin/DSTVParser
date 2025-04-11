@@ -11,6 +11,12 @@ Classify and sort NC files based on detected features
 
 Modular structure: easy to extend or integrate into larger workflows
 
+## Clone the repository:
+
+```bash
+git clone https://github.com/serg-you-lin/snapmark.git
+```
+
 ## Requirements
 Python 3.9+
 
@@ -38,3 +44,12 @@ profile = parser.parse()
 print(profile.get_header())
 ```
 For a complete example, see RunExample.py.
+
+## License
+MIT License — feel free to use, modify, and share with attribution.
+
+## Contributions
+Pull requests are welcome! If you find issues or have suggestions, please open an issue in the repository.
+
+## Author
+Federico Sidraschi https://www.linkedin.com/in/federico-sidraschi-059a961b9/
