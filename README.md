@@ -21,3 +21,20 @@ To install dependencies in the future:
 ```bash
 pip install -r requirements.txt
 ```
+## Notes
+This project is under active development.
+Supporting .nc1 files will be ready soon (just print header now).
+Plotting and DXF export features will be added in the future.
+
+# How to Use
+## Basic example
+```bash
+from DSTVParser import NCFileParser
+
+nc_file = "your_file.nc"
+parser = NCFileParser(str(nc_file))
+profile = parser.parse()
+
+print(profile.get_header())
+```
+For a complete example, see RunExample.py.
