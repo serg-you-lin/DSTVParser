@@ -10,3 +10,13 @@ Detect inclined cuts on flanges and webs
 Classify and sort NC files based on detected features
 
 Modular structure: easy to extend or integrate into larger workflows
+
+## Requirements
+Python 3.9+
+
+No external dependencies (for now)
+
+To install dependencies in the future:
+
+bash
+pip install -r requirements.txt
