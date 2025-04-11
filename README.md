@@ -18,5 +18,6 @@ No external dependencies (for now)
 
 To install dependencies in the future:
 
-bash
+```bash
 pip install -r requirements.txt
+```
