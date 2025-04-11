@@ -14,7 +14,7 @@ Modular structure: easy to extend or integrate into larger workflows
 ## Clone the repository:
 
 ```bash
-git clone https://github.com/serg-you-lin/snapmark.git
+git clone https://github.com/serg-you-lin/DSTVParser.git
 ```
 
 ## Requirements
