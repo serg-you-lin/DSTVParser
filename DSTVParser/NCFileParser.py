@@ -81,9 +81,6 @@ class NCFileParser(DSTVFileParser):
             file_type = 'NC'
             profile_type = header_lines[7]
             self.log(f"Tipo di profilo: {profile_type}", section='header')
-            
-            # Dizionario delle dimensioni in base al tipo di profilo
-            dimensions = {}
 
             # Ottieni la struttura delle dimensioni per il file tipo e profilo
             if file_type not in PROFILE_SCHEMAS or profile_type not in PROFILE_SCHEMAS[file_type]:

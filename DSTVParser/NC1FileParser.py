@@ -79,14 +79,7 @@ class NC1FileParser(DSTVFileParser):
             
             file_type = 'NC1'
             profile_type = header_lines[8]
-            print('Profilo nc1', profile_type) 
-            
-            dimensions = {}
-
-            # Ottieni la struttura delle dimensioni per il file tipo e profilo
-            if file_type not in PROFILE_SCHEMAS or profile_type not in PROFILE_SCHEMAS[file_type]:
-                raise ValueError(f"Tipo di file o profilo non riconosciuto: {file_type}, {profile_type}")
-            dimensions = {}
+            print('Profilo nc1', profile_type)           
             
             # Ottieni la struttura delle dimensioni per il file tipo e profilo
             if file_type not in PROFILE_SCHEMAS or profile_type not in PROFILE_SCHEMAS[file_type]:
