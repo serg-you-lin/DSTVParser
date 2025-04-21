@@ -1,13 +1,15 @@
 # DSTV Reader
-DSTV Reader is a Python library for parsing and analyzing DSTV (NC/NC1) files commonly used in the structural steel industry.
+DSTV Reader is a Python library for parsing and analyzing DSTV files commonly used in the structural steel industry.
 It allows easy extraction of profile information, detection of inclined cuts, and basic automation of file classification.
 
 ## Features
 Parse DSTV files and extract profile headers and geometry
 
+Support both .nc and .nc1 files
+
 Detect inclined cuts on flanges and webs
 
-Classify and sort NC files based on detected features
+Allowing classification and sorting files based on detected features
 
 Modular structure: easy to extend or integrate into larger workflows
 
@@ -27,9 +29,9 @@ To install dependencies in the future:
 ```bash
 pip install -r requirements.txt
 ```
-## Notes
+## Development notes
 This project is under active development.
-Supporting .nc1 files will be ready soon (just print header now).
+Some features related to NC1 profiles are currently incomplete due to the lack of available sample files for proper development and testing. Contributions or example files are welcome to help expand support.
 Plotting and DXF export features will be added in the future.
 
 # How to Use
