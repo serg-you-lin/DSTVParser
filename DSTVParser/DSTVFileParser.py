@@ -6,11 +6,19 @@ class DSTVFileParser:
     def __init__(self, filename: str):
         self.filename = filename
         self.current_profile = None
+        self.current_face_type = None
+        self.current_points = []
         self.debug = False
+        self.log_sections = {
+            'BO': False,
+            'AK': False,
+            'SI': False,
+            'header': True,
+            'default': True
+        }
 
-    def log(self, message: str):
-        """Utility per logging"""
-        if self.debug:
+    def log(self, message: str, section: str = 'default'):
+        if self.debug and self.log_sections.get(section, False):
             print(message)
             
     def parse(self) -> Optional[NCPart]:

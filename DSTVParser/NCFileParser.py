@@ -3,6 +3,8 @@ import re
 import os
 from .models.NCPart import *
 from .DSTVFileParser import DSTVFileParser
+from .utils.utilities import *
+from .utils.profile_schemas import PROFILE_SCHEMAS
 
 class NCFileParser(DSTVFileParser):
     """Parser per file NC standard"""
@@ -75,32 +77,26 @@ class NCFileParser(DSTVFileParser):
     def _create_profile_from_header(self, header_lines: List[str]):
         """Crea il profilo dai dati dell'header per file NC"""
         try:
-            self.log("\nCreazione profilo da header NC:")
+            self.log("\nCreazione profilo da header NC:", section='header')
+            file_type = 'NC'
             profile_type = header_lines[7]
+            self.log(f"Tipo di profilo: {profile_type}", section='header')
             
             # Dizionario delle dimensioni in base al tipo di profilo
             dimensions = {}
+
+            # Ottieni la struttura delle dimensioni per il file tipo e profilo
+            if file_type not in PROFILE_SCHEMAS or profile_type not in PROFILE_SCHEMAS[file_type]:
+                raise ValueError(f"Tipo di file o profilo non riconosciuto: {file_type}, {profile_type}")
             
-            if profile_type == 'I':
-                dimensions = {
-                    'flange_width': float(header_lines[9]),
-                    'web_height': float(header_lines[10]),
-                    'flange_thickness': float(header_lines[11]),
-                    'web_thickness': float(header_lines[12])
-                }
-            elif profile_type == 'U':
-                dimensions = {
-                    'flange_width': float(header_lines[9]),
-                    'web_height': float(header_lines[10]),
-                    'thickness': float(header_lines[11])
-                }
-            elif profile_type == 'L':
-                dimensions = {
-                    'width': float(header_lines[9]),
-                    'height': float(header_lines[10]),
-                    'thickness': float(header_lines[11])
-                }
-            # Add profile when necessary
+            # Ottieni i nomi delle dimensioni e gli indici corrispondenti
+            param_names, param_indexes = PROFILE_SCHEMAS[file_type][profile_type]
+
+            # Crea dizionario dimensioni leggendo i valori dall’header
+            dimensions = {
+                name: float(header_lines[idx].split(',')[0].strip())  # Pulisce valori tipo "1000,0"
+                for name, idx in zip(param_names, param_indexes)
+            }
             
             self.current_profile = NCPart(
                 order_id=header_lines[0],
@@ -114,7 +110,7 @@ class NCFileParser(DSTVFileParser):
             )
             
             self.log(f"Creato profilo tipo {profile_type}: {self.current_profile.code_profile}")
-            self.log(f"Dimensioni: {dimensions}")
+            self.log(f"Dimensioni: {dimensions}", section='header')
             
         except Exception as e:
             self.log(f"ERRORE nella creazione del profilo: {e}")
@@ -128,10 +124,10 @@ class NCFileParser(DSTVFileParser):
         
         try:
             face = parts[0]
-            x = float(re.sub(r'[ouvh]', '', parts[1]))
-            y = float(parts[2])
-            diameter = float(parts[3])
-            hole_type = float(parts[4])
+            x = convert_to_float(parts[1])
+            y = convert_to_float(parts[2])
+            diameter = convert_to_float(parts[3])
+            hole_type = convert_to_float(parts[4])
             
             self.current_profile.add_hole(x, y, diameter, hole_type, face)
             self.log(f"Aggiunto foro: x={x}, y={y}, diameter={diameter}, type={hole_type}, face={face}")
@@ -152,17 +148,17 @@ class NCFileParser(DSTVFileParser):
             
         try:
             face = parts[0]
-            x = float(re.sub(r'[ouvh]', '', parts[1]))
-            y = float(parts[2])
-            diameter = float(parts[3])
+            x = convert_to_float(parts[1])   
+            y = convert_to_float(parts[2])
+            diameter = convert_to_float(parts[3])
             # Cerca la parte che contiene 'l'
             for i, part in enumerate(parts[4:], 4):
                 if 'l' in part:
-                    hole_type = float(part.replace('l', ''))
+                    hole_type = convert_to_float(part)
                     self.log(f"Debug asola - Trovato 'l' in posizione {i}: {part}")
-                    cc_distance = float(parts[i + 1])
-                    height = float(parts[i + 2])
-                    angle = float(parts[i + 3]) if len(parts) > i + 3 else 0.0
+                    cc_distance = convert_to_float(parts[i + 1])
+                    height = convert_to_float(parts[i + 2])
+                    angle = convert_to_float(parts[i + 3]) if len(parts) > i + 3 else 0.0
                     length = diameter + cc_distance
                     
                     self.current_profile.add_slot(x, y, diameter, hole_type, cc_distance, height, angle, length, face)
@@ -184,14 +180,17 @@ class NCFileParser(DSTVFileParser):
     def _parse_contour(self, line: str) -> bool:
         """Parser dedicato per i punti del contorno (4 valori dopo AK)"""
         parts = line.split()
+
+        self.log(f"Split parts: {parts}", section='AK')
         if len(parts) < 4:
+            self.log("Line too short, expected at least 4 parts.", section='AK')
             return False
             
         try:
             face = parts[0]
-            x = float(parts[1].replace('u', ''))
-            y = float(parts[2])
-            angle = float(parts[3])
+            x = convert_to_float(parts[1])
+            y = convert_to_float(parts[2])
+            angle = convert_to_float(parts[3])
             
             self.current_profile.add_contour_points(face, [(x, y, angle)])
             self.log(f"Aggiunto punto contorno: face={face}, x={x}, y={y}, angle={angle}")
@@ -222,7 +221,7 @@ class NCFileParser(DSTVFileParser):
         if self._parse_contour(line):
             return
             
-        self.log(f"Linea AK non riconosciuta: {line}")
+        self.log(f"Linea AK non riconosciuta: {line}", section='AK')
 
     def _parse_si_line(self, line: str):
         """Gestisce le linee dopo SI (marcature)"""
@@ -231,24 +230,24 @@ class NCFileParser(DSTVFileParser):
 
 
 
-if __name__ == '__main__':
-    base_dir = os.path.dirname(__file__) 
-    parent_dir = os.path.dirname(base_dir)
-    nc_path = os.path.join(parent_dir, "Examples", "4026.nc")
+# if __name__ == '__main__':
+#     base_dir = os.path.dirname(__file__) 
+#     parent_dir = os.path.dirname(base_dir)
+#     nc_path = os.path.join(parent_dir, "Examples", "4026.nc")
 
-    if os.path.exists(nc_path):
-        print("File found!")
-    else:
-        print("File NOT found!")
+#     if os.path.exists(nc_path):
+#         print("File found!")
+#     else:
+#         print("File NOT found!")
         
-    part_nc = NCFileParser(nc_path)
-    profile = part_nc.parse()
-    header = profile.get_header()
-    print(header)
+#     part_nc = NCFileParser(nc_path)
+#     profile = part_nc.parse()
+#     header = profile.get_header()
+#     print(header)
 
-    top_flange = profile.o_contour
-    print(f"Top flange points: {top_flange}.")
+#     top_flange = profile.o_contour
+#     print(f"Top flange points: {top_flange}.")
 
-    print("Dimensions: ", profile.dimensions)
+#     print("Dimensions: ", profile.dimensions)
 
-    print("Material: ", profile.material)
+#     print("Material: ", profile.material)

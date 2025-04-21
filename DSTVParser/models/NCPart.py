@@ -33,7 +33,7 @@ class Notch:
     x: float
     y: float
     z: float
-    notch_type: str  # 't' per tangenziale, 'w' per foro
+    notch_type: str  
     face: str        # 'o', 'u', 'v', 'h'
 
 class NCPart:
@@ -62,10 +62,10 @@ class NCPart:
         self.holes: List[Hole] = []
         self.slots: List[Slot] = []
         self.notches: List[Notch] = []
-        self.o_contour: List[Tuple[float, float, float]] = []  # contorno superiore
-        self.u_contour: List[Tuple[float, float, float]] = []  # contorno inferiore
-        self.v_contour: List[Tuple[float, float, float]] = []  # contorno frontale
-        self.h_contour: List[Tuple[float, float, float]] = []  # contorno posteriore
+        self.o_contour: List[Tuple[float, float, float]] = []  # top flange
+        self.u_contour: List[Tuple[float, float, float]] = []  # bottom flange
+        self.v_contour: List[Tuple[float, float, float]] = []  # front web
+        self.h_contour: List[Tuple[float, float, float]] = []  # behind wer
 
     def add_hole(self, x: float, y: float, diameter: float, tipologia: float, face: str, 
                 hole_type: str = 'normal', depth: float = 0.0):
